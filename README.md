@@ -10,8 +10,7 @@ ant-yui-compressor is an [Apache Ant](http://ant.apache.org/) task for compressi
 
 ##### Origins
 
-This project is based on [yui-compressor-ant-task](https://code.google.com/p/yui-compressor-ant-task/) by Simon Buckle 
-which only supports JS minification. 
+This project is based on [yui-compressor-ant-task](https://code.google.com/p/yui-compressor-ant-task/) by Simon Buckle
 
 ### Basic Usage
 ```xml
@@ -29,7 +28,7 @@ Both [fileset](http://ant.apache.org/manual/Types/fileset.html) and [mapper](htt
 
 ### Example
 
-A working ant sample project is available with the source code (https://github.com/parambirs/ant-yui-compressor/tree/master/example).
+A working ant sample project is available with the source code (https://github.com/bardware/ant-yui-compressor/tree/master/example).
 
 ### Options
 
@@ -104,8 +103,4 @@ The following options are available for CSS files:
         <td>-1</td>
     </tr>
 </table>
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/e9e0d299aee1cee169c7f8a2361ee89e "githalytics.com")](http://githalytics.com/parambirs/ant-yui-compressor)
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/parambirs/ant-yui-compressor/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 

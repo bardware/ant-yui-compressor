@@ -1,17 +1,41 @@
-<project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="">
+
 	<path id="project.classpath">
-		<fileset dir="deps">
-			<include name="*.jar"/>
+		<fileset dir="${basedir}/..">
+			<include name="dist/ant-yui-compressor-taskdef-1.0.1.jar"/>
+			<include name="lib/yuicompressor-2.4.8.jar"/>
 		</fileset>
 	</path>
+	<taskdef name="ant-yui-compressor"
+		classpathref="project.classpath"
+		classname="de.bardware.ant.tasks.CompressTask"
+	/>
 
-	<taskdef resource="yuicompressor.tasks" classpathref="project.classpath"/>	
-	
+	<scriptdef name="substring" language="javascript">
+		<attribute name="text"/>
+		<attribute name="start"/>
+		<attribute name="end"/>
+		<attribute name="property"/>
+
+		<![CDATA[
+			var text = attributes.get("text"),
+				start = attributes.get("start") || 0,
+				end = attributes.get("end") || text.length();
+
+			if (end > text.length()) {
+				end = text.length()
+			}
+
+			project.setProperty(attributes.get("property"), text.substring(start, end));
+
+		]]>
+	</scriptdef>
 
 	<target name="clean" description="Cleans the output folder">
 		<delete includeEmptyDirs="true">
-    			<fileset dir="output" includes="**/*"/>
-  		</delete>
+			<fileset dir="output" includes="**/*"/>
+		</delete>
 	</target>
 
 	<target name="copy" depends="clean" description="Copies source files to output folder">
@@ -21,22 +45,48 @@
 		</copy>
 	</target>
 
-	<target name="compress" depends="copy" description="Compress JS files using YUI Compressor">
-
+	<target name="compress" depends="copy" description="Compress JS/CSS files using YUI Compressor">
 		<!-- Compress JS files using YUI Compressor -->
 		<ant-yui-compressor todir="output/js" deleteOriginal="true">
-			<fileset dir="output/js">
+			<fileset dir="webapp/js">
 				<include name="*.js"/>
-			</fileset>		
+			</fileset>
 			<mapper type="glob" from="*.js" to="*-min.js"/>
 		</ant-yui-compressor>
 		
 		<!-- Compress CSS files using YUI Compressor -->
 		<ant-yui-compressor todir="output/css" deleteOriginal="true">
-			<fileset dir="output/css">
+			<fileset dir="webapp/css">
 				<include name="*.css"/>
 			</fileset>
 			<mapper type="glob" from="*.css" to="*-min.css"/>
 		</ant-yui-compressor>
 	</target>
+
+	<target name="combine" depends="clean" description="Combine and compress JS files using YUI Compressor">
+
+		<fileset dir="webapp/js" id="files2combine">
+			<include name="jquery-2.1.4.js"/>
+			<include name="bootstrap.js"/>
+		</fileset>
+
+		<tempfile property="tmp.file" destDir="${basedir}/webapp/js"/>
+		<concat destfile="${tmp.file}">
+			<fileset refid="files2combine"/>
+		</concat>
+
+		<checksum file="${tmp.file}" property="chkSUMFull"/>
+		<substring text="${chkSUMFull}" start="0" end="8" property="chkSUM" />
+		<move file="${tmp.file}" tofile="${basedir}/output/js/js_${chkSUM}.js"/>
+
+		<!-- Compress JS files using YUI Compressor -->
+		<ant-yui-compressor todir="output/js" deleteOriginal="false" preserveAllSemiColons="true">
+			<fileset dir="output/js">
+				<include name="js_${chkSUM}.js"/>
+			</fileset>
+			<mapper type="glob" from="*.js" to="*.min.js"/>
+		</ant-yui-compressor>
+
+	</target>
+
 </project>
