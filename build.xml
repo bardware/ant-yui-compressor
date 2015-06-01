@@ -10,13 +10,26 @@
 		<fileset dir="${lib.dir}" includes="**/*.jar"/>
 	</path>
 
-	<target name="init">
+	<target name="init" depends="clean">
 		<tstamp/>
 		<mkdir dir="${build.dir}"/>
 		<mkdir dir="${dist.dir}"/>
 	</target>
 
 	<target name="compile" depends="init">
+		<mkdir dir="${build.dir}/classes"/>
+		<javac
+				srcdir="${src.dir}" 
+				destdir="${build.dir}/classes"
+				includes="de/bardware/**"
+				includeantruntime="true"
+				deprecation="off"
+		>
+			<classpath refid="javac.classpath"/>
+		</javac>
+	</target>
+
+	<target name="compile.all" depends="init">
 		<mkdir dir="${build.dir}/classes"/>
 		<javac
 				srcdir="${src.dir}" 
@@ -40,6 +53,16 @@
 				<attribute name="Class-Path" value="yuicompressor-2.4.2.jar" />
 			</manifest>
 			-->
+		</jar>
+	</target>
+
+	<target name="package.all" depends="compile.all">
+		<mkdir dir="${build.dir}/jar"/>
+		<copy todir="${build.dir}/jar">
+			<fileset dir="${build.dir}/classes" includes="**/*.class"/>
+			<fileset dir="${config.dir}"/>
+		</copy>
+		<jar jarfile="${dist.dir}/${jar.name}" basedir="${build.dir}/jar">
 		</jar>
 	</target>
 

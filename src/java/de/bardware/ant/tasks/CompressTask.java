@@ -25,7 +25,7 @@ import org.mozilla.javascript.EvaluatorException;
  */
 public class CompressTask extends Task {
 
-	private List<FileSet> filesets = new ArrayList<FileSet>();
+	private List<FileSet> filesets = new ArrayList<FileSet>( );
 	private Mapper mapper;
 	private int linebreak = -1;
 	private boolean munge = true;
@@ -35,153 +35,152 @@ public class CompressTask extends Task {
 	private boolean deleteOriginal = false;
 	private String todir;
 
-	public void addFileset(FileSet fileset) {
-		filesets.add(fileset);
+	public void addFileset( FileSet fileset ) {
+		filesets.add( fileset );
 	}
 
-	public void addMapper(Mapper mapper) {
+	public void addMapper( Mapper mapper ) {
 		this.mapper = mapper;
 	}
 
-	public void setDisableOptimizations(boolean disableOptimizations) {
+	public void setDisableOptimizations( boolean disableOptimizations ) {
 		this.disableOptimizations = disableOptimizations;
 	}
 
-	public void setLinebreak(int linebreak) {
+	public void setLinebreak( int linebreak ) {
 		this.linebreak = linebreak;
 	}
 
-	public void setMunge(boolean munge) {
+	public void setMunge( boolean munge ) {
 		this.munge = munge;
 	}
 
-	public void setPreserveAllSemiColons(boolean preserveAllSemiColons) {
+	public void setPreserveAllSemiColons( boolean preserveAllSemiColons ) {
 		this.preserveAllSemiColons = preserveAllSemiColons;
 	}
 
-	public void setToDir(String todir) {
+	public void setToDir( String todir ) {
 		this.todir = todir;
 	}
 
-	public void setVerbose(boolean verbose) {
+	public void setVerbose( boolean verbose ) {
 		this.verbose = verbose;
 	}
 
-	public void setDeleteOriginal(boolean deleteOrig) {
+	public void setDeleteOriginal( boolean deleteOrig ) {
 		this.deleteOriginal = deleteOrig;
 	}
 
-	private void validateRequired() throws BuildException {
-		StringBuilder errorString = new StringBuilder();
+	private void validateRequired( ) throws BuildException {
+		StringBuilder errorString = new StringBuilder( );
 
-		if (mapper == null)
-			errorString.append("Mapper property is required\n");
-		if (todir == null || "".equals(todir))
-			errorString.append("Output directory is not specified\n");
+		if( mapper == null )
+			errorString.append( "Mapper property is required\n" );
+		if( todir == null || "".equals( todir ) )
+			errorString.append( "Output directory is not specified\n" );
 
-		if (errorString.length()>0) {
-			throw new BuildException(errorString.toString());
+		if( errorString.length( ) >0 ) {
+			throw new BuildException( errorString.toString( ) );
 		}
 	}
 
-	public void execute() throws BuildException {
-		validateRequired();
+	public void execute( ) throws BuildException {
+		validateRequired( );
 
-		Iterator<FileSet> iter = filesets.listIterator();
-		while (iter.hasNext()) {
-			FileSet fileset = iter.next();
-			DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
-			File dir = scanner.getBasedir();
+		Iterator<FileSet> iter = filesets.listIterator( );
+		while( iter.hasNext( ) ) {
+			FileSet fileset = iter.next( );
+			DirectoryScanner scanner = fileset.getDirectoryScanner( getProject( ) );
+			File dir = scanner.getBasedir( );
 
-			String[] files = scanner.getIncludedFiles();
-			for (int i = 0; i < files.length; i++) {
-				String[] output = mapper.getImplementation().mapFileName(files[i]);
-				if (output != null) {
+			String[] files = scanner.getIncludedFiles( );
+			for( int i = 0; i < files.length; i++ ) {
+				String[] output = mapper.getImplementation( ).mapFileName( files[i] );
+				if( output != null ) {
 					try {
-						File originalFile = new File(dir, files[i]);
-						if(originalFile.getName().endsWith(".css")) {
-							compressCSS(originalFile, new File(todir, output[0]));
+						File originalFile = new File( dir, files[i] );
+						if( originalFile.getName( ).endsWith( ".css" ) ) {
+							compressCSS( originalFile, new File( todir, output[0] ) );
 						} else {
 							// treat all other file types as javascript files
-							compressJS(originalFile, new File(todir, output[0]));
+							compressJS( originalFile, new File( todir, output[0] ) );
 						}
 
-						if(deleteOriginal) {
+						if( deleteOriginal ) {
 							// delete the file just processed
-							if(!originalFile.delete()) {
-								log("Failed to delete file: " + originalFile.getName());
+							if( !originalFile.delete( ) ) {
+								log( "Failed to delete file: " + originalFile.getName( ) );
 							}
 						}
-					} catch (IOException io) {
-						log("Failed to compress file: " + files[i]);
+					} catch( IOException io ) {
+						log( "Failed to compress file: " + files[i] );
 					}
 				}
 			}
 		}
 	}
 
-	private void compressCSS(File source, File dest) throws IOException {
+	private void compressCSS( File source, File dest ) throws IOException {
 		Reader in = null;
 		Writer out = null;
 		try {
-			in = new BufferedReader(new FileReader(source));
-			CssCompressor compressor = new CssCompressor(in);
-			out = new BufferedWriter(new FileWriter(dest));
-			log("Compressing: " + source.getName());
+			in = new BufferedReader( new FileReader( source ) );
+			out = new BufferedWriter( new FileWriter( dest ) );
+			log( "Compressing: " + source.getName( ) );
 
-			compressor.compress(out, linebreak);
+			CssCompressor compressor = new CssCompressor( in );
+			compressor.compress( out, linebreak );
 		} finally {
-			if(in != null) in.close();
-			if(out != null) out.close();
+			if( in != null ) in.close( );
+			if( out != null ) out.close( );
 		}
 	}
 
-	private void compressJS(File source, File dest) throws IOException {
+	private void compressJS( File source, File dest ) throws IOException {
 		Reader in = null;
 		Writer out = null;
 		try {
-			in = new BufferedReader(new FileReader(source));
-			log("Compressing: " + source.getName());
+			in = new BufferedReader( new FileReader( source ) );
+			out = new BufferedWriter( new FileWriter( dest ) );
+			log( "Compressing: " + source.getName( ) );
 
-			JavaScriptCompressor compressor = new JavaScriptCompressor(in, new ErrorReporter() {
+			JavaScriptCompressor compressor = new JavaScriptCompressor( in, new ErrorReporter( ) {
 
-				public void warning(String message, String sourceName, int line, String lineSource, int lineOffset) {
+				public void warning( String message, String sourceName, int line, String lineSource, int lineOffset ) {
 					// System.err.println("\n[WARNING] in " + this.val$localFilename);
 					// source.getName()
-					if (line < 0) {
-						log(message, Project.MSG_WARN);
+					if ( line < 0 ) {
+						log( message, Project.MSG_WARN );
 					} else {
-						log(line + ":" + lineOffset + ":" + message, Project.MSG_WARN);
+						log( line + ":" + lineOffset + ":" + message, Project.MSG_WARN );
 					}
 				}
 
-				public void error(String message, String sourceName, int line, String lineSource, int lineOffset) {
-					if (line < 0) {
-						log(message, Project.MSG_ERR);
+				public void error( String message, String sourceName, int line, String lineSource, int lineOffset ) {
+					if ( line < 0 ) {
+						log( message, Project.MSG_ERR );
 					} else {
-						log(line + ":" + lineOffset + ":" + message, Project.MSG_ERR);
+						log( line + ":" + lineOffset + ":" + message, Project.MSG_ERR );
 					}
 					// log("Error: " + message, Project.MSG_ERR);
 				}
 
-				public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource, int lineOffset) {
-					error(message, sourceName, line, lineSource, lineOffset);
-					return new EvaluatorException(message);
+				public EvaluatorException runtimeError( String message, String sourceName, int line, String lineSource, int lineOffset ) {
+					error( message, sourceName, line, lineSource, lineOffset );
+					return new EvaluatorException( message );
 				}
 
-			});
+			} );
 
-			out = new BufferedWriter(new FileWriter(dest));
-
-			compressor.compress(out,
+			compressor.compress( out,
 								linebreak,
 								munge,
 								verbose,
 								preserveAllSemiColons,
-								disableOptimizations);
+								disableOptimizations );
 		} finally {
-			if (in != null) in.close();
-			if (out != null) out.close();
+			if( in != null ) in.close( );
+			if( out != null ) out.close( );
 		}
 	}
 }
