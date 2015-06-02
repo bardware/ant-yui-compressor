@@ -53,7 +53,7 @@
 			</fileset>
 			<mapper type="glob" from="*.js" to="*-min.js"/>
 		</ant-yui-compressor>
-		
+
 		<!-- Compress CSS files using YUI Compressor -->
 		<ant-yui-compressor todir="output/css" deleteOriginal="true">
 			<fileset dir="webapp/css">
@@ -63,7 +63,7 @@
 		</ant-yui-compressor>
 	</target>
 
-	<target name="combine" depends="clean" description="Combine and compress JS files using YUI Compressor">
+	<target name="combine.js" depends="" description="Combine and compress JS files using YUI Compressor">
 
 		<fileset dir="webapp/js" id="files2combine">
 			<include name="jquery-2.1.4.js"/>
@@ -85,6 +85,32 @@
 				<include name="js_${chkSUM}.js"/>
 			</fileset>
 			<mapper type="glob" from="*.js" to="*.min.js"/>
+		</ant-yui-compressor>
+
+	</target>
+
+	<target name="combine.css" depends="" description="Combine and compress JS files using YUI Compressor">
+
+		<fileset dir="webapp/css" id="files2combine">
+			<include name="bootstrap.css"/>
+			<include name="bootstrap-theme.css"/>
+		</fileset>
+
+		<tempfile property="tmp.file" destDir="${basedir}/webapp/css"/>
+		<concat destfile="${tmp.file}">
+			<fileset refid="files2combine"/>
+		</concat>
+
+		<checksum file="${tmp.file}" property="chkSUMFull"/>
+		<substring text="${chkSUMFull}" start="0" end="8" property="chkSUM" />
+		<move file="${tmp.file}" tofile="${basedir}/output/css/css_${chkSUM}.css"/>
+
+		<!-- Compress JS files using YUI Compressor -->
+		<ant-yui-compressor todir="output/css" deleteOriginal="false">
+			<fileset dir="output/css">
+				<include name="css_${chkSUM}.css"/>
+			</fileset>
+			<mapper type="glob" from="*.css" to="*.min.css"/>
 		</ant-yui-compressor>
 
 	</target>
