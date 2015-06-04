@@ -3,7 +3,7 @@
 
 	<path id="project.classpath">
 		<fileset dir="${basedir}/..">
-			<include name="dist/ant-yui-compressor-taskdef-1.0.1.jar"/>
+			<include name="dist/ant-yui-compressor-taskdef-1.1.0.jar"/>
 			<include name="lib/yuicompressor-2.4.8.jar"/>
 		</fileset>
 	</path>
@@ -109,6 +109,31 @@
 		<ant-yui-compressor todir="output/css" deleteOriginal="false">
 			<fileset dir="output/css">
 				<include name="css_${chkSUM}.css"/>
+			</fileset>
+			<mapper type="glob" from="*.css" to="*.min.css"/>
+		</ant-yui-compressor>
+
+	</target>
+
+	<target name="combine.css.fa" depends="" description="Combine and compress JS files using YUI Compressor">
+
+		<fileset dir="webapp/css" id="files2combine">
+			<include name="fontawesome.css"/>
+		</fileset>
+
+		<tempfile property="tmp.file" destDir="${basedir}/webapp/css"/>
+		<concat destfile="${tmp.file}">
+			<fileset refid="files2combine"/>
+		</concat>
+
+		<checksum file="${tmp.file}" property="chkSUMFull"/>
+		<substring text="${chkSUMFull}" start="0" end="8" property="chkSUM" />
+		<move file="${tmp.file}" tofile="${basedir}/output/css/fa_${chkSUM}.css"/>
+
+		<!-- Compress JS files using YUI Compressor -->
+		<ant-yui-compressor todir="output/css" deleteOriginal="false" charset="UTF-8">
+			<fileset dir="output/css">
+				<include name="fa_${chkSUM}.css"/>
 			</fileset>
 			<mapper type="glob" from="*.css" to="*.min.css"/>
 		</ant-yui-compressor>

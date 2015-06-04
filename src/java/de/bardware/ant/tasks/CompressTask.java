@@ -1,6 +1,7 @@
 package de.bardware.ant.tasks;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +35,7 @@ public class CompressTask extends Task {
 	private boolean verbose = false;
 	private boolean deleteOriginal = false;
 	private String todir;
+	private String charset = "UTF-8";
 
 	public void addFileset( FileSet fileset ) {
 		filesets.add( fileset );
@@ -61,6 +63,14 @@ public class CompressTask extends Task {
 
 	public void setToDir( String todir ) {
 		this.todir = todir;
+	}
+
+	public void setCharset( String charset ) {
+		if( Charset.isSupported( charset ) ) {
+			log( "Charset in: " + charset );
+			this.charset = charset;
+		}
+		log( "Charset set: " + this.charset );
 	}
 
 	public void setVerbose( boolean verbose ) {
@@ -124,8 +134,8 @@ public class CompressTask extends Task {
 		Reader in = null;
 		Writer out = null;
 		try {
-			in = new BufferedReader( new FileReader( source ) );
-			out = new BufferedWriter( new FileWriter( dest ) );
+			in = new BufferedReader( new InputStreamReader( new FileInputStream( source ), this.charset ) );
+			out = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( dest ), this.charset ) );
 			log( "Compressing: " + source.getName( ) );
 
 			CssCompressor compressor = new CssCompressor( in );
@@ -140,8 +150,8 @@ public class CompressTask extends Task {
 		Reader in = null;
 		Writer out = null;
 		try {
-			in = new BufferedReader( new FileReader( source ) );
-			out = new BufferedWriter( new FileWriter( dest ) );
+			in = new BufferedReader( new InputStreamReader( new FileInputStream( source ), this.charset ) );
+			out = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( dest ), this.charset ) );
 			log( "Compressing: " + source.getName( ) );
 
 			JavaScriptCompressor compressor = new JavaScriptCompressor( in, new ErrorReporter( ) {

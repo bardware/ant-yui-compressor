@@ -25,6 +25,7 @@ This project is based on [yui-compressor-ant-task](https://code.google.com/p/yui
 **Note: The `toDir` attribute, as well as `fileset` & `mapper` elements are required**. 
 The `fileset` element specifies the list of files to be minified. The `mapper` elements describes the naming convention for minified files.
 Both [fileset](http://ant.apache.org/manual/Types/fileset.html) and [mapper](http://ant.apache.org/manual/Types/mapper.html) are standard Ant types and have various configuration options.
+Version 1.1.0 adds `charset` attribute
 
 ### Example
 
